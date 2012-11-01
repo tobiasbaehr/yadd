@@ -11,7 +11,7 @@ Drush 5.x ist nicht mit Git 1.5.x kompatibel, da Drush-Make in Drush 5.x `git cl
 
 - Projekt-Template kopieren
 
-`cp -R ~/drupal_deployment/drupal_project_template/ ~/projectname_project && cd ~/projectname_project`
+`cp -R ~/yadd/drupal_project_template/ ~/projectname_project && cd ~/projectname_project`
 
 - Projekt-Informationen angeben
 
@@ -38,9 +38,9 @@ Drush 5.x ist nicht mit Git 1.5.x kompatibel, da Drush-Make in Drush 5.x `git cl
 
 `/setup.sh` - Muss aufgerufen via Terminal, um das Deployment-System nutzen zu können.
 
-`custom_builder.sh` Wird nachdem Drush-Make fertig ist, aufgerufen.
+`custom_builder.sh` Wird nach dem Drush-Make fertig ist, aufgerufen.
 
-`custom_tasks_db.sh` Wird nachdem Importieren der Datenbank ausgeführt und kann z.b. genutzt wird, um Variablen zu setzen oder Module zu aktivieren/deaktivieren.
+`custom_tasks_db.sh` Wird nach dem Importieren der Datenbank ausgeführt und kann z. B. genutzt wird, um Variablen zu setzen oder Module zu aktivieren/deaktivieren.
 
 ### Drush-Aliases-Datei
 Diese Datei wird erst benötigt, wenn eine Datenbank exportiert bzw. von der Live-Umgebung importiert werden soll.
