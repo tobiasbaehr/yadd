@@ -43,38 +43,40 @@ incolor_yellow "Beginne neue Zusammenstellung ..."
   fi
   
   if [[ -d "libs" && "$(ls -A libs)" ]];then
-   rm -rf "$PROJECTLIBS/*"
-   cp -R libs/* $PROJECTLIBS
+   rm -rf "$PROJECTLIBS"/*
+   check_errs $? "Die Dateien innerhalb des Verzeichnisses $PROJECTLIBS konnten nicht gelöscht werden."
+   cp -R "libs"/* "$PROJECTLIBS"
+   check_errs $? "Die Dateien innerhalb des Verzeichnisses libs konnten nicht nach $PROJECTLIBS kopiert werden."
    echo "Kopiere Dateien für das libraries-Verzeichnis"
   fi
   _include_custom_builder_file
   # when a libraries folder is already available, then move the files and delete dir
-  tmp=$BUILD/sites/all/libraries
-  if [ -d $tmp ];then
-     cp -R $tmp/* $PROJECTLIBS
-     rm -rf $tmp
+  tmp="$BUILD/sites/all/libraries"
+  if [ -d "$tmp" ];then
+     cp -R "$tmp"/* "$PROJECTLIBS"
+     rm -rf "$tmp"
   fi
-  ln -s $PROJECTLIBS $BUILD/sites/all/libraries
+  ln -s "$PROJECTLIBS" "$BUILD/sites/all/libraries"
   echo "Symboylischen Link für das libraries-Verzeichnis erstellt."
-  ln -s $PROJECTFILES $BUILD/$DRUPALFILESDIR
+  ln -s "$PROJECTFILES" "$BUILD/$DRUPALFILESDIR"
   echo "Symboylischen Link für das files-Verzeichnis erstellt."
-  mv -f $BUILD $PROJECTBUILDS
+  mv -f "$BUILD" "$PROJECTBUILDS"
   echo "Neuestes Projectbuild ins Projectbuilds-Verzeichnis verschoben."
 
 incolor_green "Beginne neue Zusammenstellung...erledigt!"
 
 add_symbolic_link
 
-PROJECTBUILDS_LIST=`ls -A $PROJECTBUILDS`;
+PROJECTBUILDS_LIST=`ls -A $PROJECTBUILDS`
 for CURRENT_BUILD in $PROJECTBUILDS_LIST
 do
-  if [ $CURRENT_BUILD != $BUILD ];then
+  if [ "$CURRENT_BUILD" != "$BUILD" ];then
     if ! [ -w "$PROJECTBUILDS/$CURRENT_BUILD/sites/default" ];then
-      sudo rm -rf $PROJECTBUILDS/$CURRENT_BUILD
+      sudo rm -rf "$PROJECTBUILDS/$CURRENT_BUILD"
     else
-      rm -rf $PROJECTBUILDS/$CURRENT_BUILD
+      rm -rf "$PROJECTBUILDS/$CURRENT_BUILD"
     fi
-    echo "Build $CURRENT_BUILD entfernt." >&2
+    echo "Build $CURRENT_BUILD entfernt."
   fi
 done
 incolor_green "Prozess beendet."
