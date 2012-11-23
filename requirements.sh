@@ -8,7 +8,7 @@ GIT_SUPPORTED=" 1.7"
 GIT_17=`echo $GIT_VERSION | grep $GIT_SUPPORTED`
 
 DRUSH_VERSION=`drush --version`
-DRUSH_SUPPORTED="5.7"
+DRUSH_SUPPORTED="5."
 DRUSH_5x=`echo $DRUSH_VERSION | grep $DRUSH_SUPPORTED`
 
 incolor_yellow "Überprüfe Vorraussetzungen..."
