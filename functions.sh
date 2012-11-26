@@ -318,7 +318,7 @@ pack_build() {
   else
     cd $PROJECTBUILDS
   fi
-  BUILD=`ls -tr`
+  BUILD=`ls -A`
   if [ -d "$BUILD" ]; then
     tar --exclude="sites/default/files" --exclude=".drupal_deployment_env" --exclude="sites/default/settings.php" --exclude-vcs -cvhzf $ARCHIVNAME "$BUILD"
     cd $DIR
