@@ -3,16 +3,22 @@
 DRUSH_TARGET="$HOME/drush"
 DRUSH_CONTRIB="$HOME/.drush/"
 
-GIT_VERSION=`git --version`
-GIT_SUPPORTED=" 1.7"
-GIT_17=`echo $GIT_VERSION | grep $GIT_SUPPORTED`
+GIT_VERSION_STRING=`git --version`
+GIT_VERSION=${GIT_VERSION_STRING:12}
+GIT_SUPPORTED="1.7"
+if [ "$GIT_VERSION" \> "$GIT_SUPPORTED" ];then
+  GIT_17=$GIT_VERSION
+fi
 
-DRUSH_VERSION=`drush --version`
-DRUSH_SUPPORTED="5."
-DRUSH_5x=`echo $DRUSH_VERSION | grep $DRUSH_SUPPORTED`
+DRUSH_VERSION_STRING=`drush --version`
+DRUSH_VERSION=${DRUSH_VERSION_STRING:14}
+DRUSH_SUPPORTED="5.0"
+if [ "$DRUSH_VERSION" \> "$DRUSH_SUPPORTED" ];then
+  DRUSH_5x=$DRUSH_VERSION
+fi
 
 incolor_yellow "Überprüfe Vorraussetzungen..."
-if [ -z "$DRUSH_VERSION" ];then
+if [ -z "$DRUSH_VERSION_STRING" ];then
   incolor_red "Drush ist nicht installiert."
   echo "Soll Drush installiert werden? (y/n)"
   read INSTALL_DRUSH
@@ -24,15 +30,15 @@ if [ -z "$DRUSH_VERSION" ];then
     exit 2
   fi
 fi
+
 # Warnung, wenn Drush 5.x installiert ist, jedoch git 1.7.x nicht, wegen git clone --mirror in drush make
 if [[ ! -z "$DRUSH_5x" && -z $GIT_17 ]];then
-  incolor_red "Abbruch. Prozess wird beendet, da $DRUSH_5x inkompatibel mit $GIT_VERSION ist."
+  incolor_red "Abbruch. Prozess wird beendet, da $DRUSH_VERSION_STRING inkompatibel mit $GIT_VERSION_STRING ist."
   exit 2
 fi
 # Warnung, wenn git 1.7.x installiert ist und Drush 5.x nicht, wegen git clone --mirror in drush make
 if [[ -z "$DRUSH_5x" && ! -z $GIT_17 ]];then
-  incolor_yellow "Die Drush-Version ist veraltet, bitte auf $DRUSH_SUPPORTED Version aktualisieren."
-  incolor_red "Abbruch. Prozess wird beendet, da Drush veraltet ist."
+  incolor_red "Abbruch. Prozess wird beendet, da $GIT_VERSION_STRING inkompatibel mit $DRUSH_VERSION_STRING ist."
   exit 2
 fi
 #Drush make nicht installieren bei drush 5.x, da bereits enthalten
