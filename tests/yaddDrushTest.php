@@ -74,7 +74,7 @@ class yaddCase extends Drush_CommandTestCase {
     $this->createDummyProject();
     $this->_copy_yadd();
     $command = 'yadd-build-env';
-    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'backup' => 'n', 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject, $expected_return = self::EXIT_SUCCESS, $suffix = NULL, $env = NULL);
+    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'backup' => 'n', 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
 
     $root = $this->webroot() . DIRECTORY_SEPARATOR . $this->projectname;
 
@@ -106,10 +106,10 @@ class yaddCase extends Drush_CommandTestCase {
     chmod($site, 0777);
 
     $command = 'yadd-export-local-db';
-    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject, $expected_return = self::EXIT_SUCCESS, $suffix = NULL, $env = NULL);
+    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
     $this->assertEquals(1, count(glob($this->testproject . DIRECTORY_SEPARATOR . '*.sql.gz')));
 
-    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject, $expected_return = self::EXIT_SUCCESS, $suffix = NULL, $env = NULL);
+    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
     $this->assertEquals(2, count(glob($this->testproject . DIRECTORY_SEPARATOR . '*.sql.gz')));
 
   }
