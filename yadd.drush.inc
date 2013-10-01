@@ -22,7 +22,9 @@ function yadd_drush_command() {
   $items['yadd-build-env'] = array(
     'description' => 'Build a drupal environment.',
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-    'options' => $default_options,
+    'options' => $default_options + array(
+      'backup' => 'Set to y to create a backup before build the environment.',
+    ),
   );
   $items['yadd-backup-env'] = array(
     'description' => 'Create a backup of the drupal environment',
@@ -289,6 +291,4 @@ function drush_yadd_cleanup_all() {
     drush_invoke('yadd-cleanup-env');
   }
 }
-
-
 

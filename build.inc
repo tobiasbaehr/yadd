@@ -2,13 +2,11 @@
 
 function yadd_build_env() {
   $vars = yadd_build_vars();
-  if (!$vars['BACKUP_PRE_BUILD']) {
-    $choice = drush_confirm('Do you want to create a backup? (Current Build/Database)');
+  $backup = drush_get_option('backup', $vars['BACKUP_PRE_BUILD']);
+  if (empty($backup)) {
+    $backup = drush_confirm('Do you want to create a backup? (Current Build/Database)');
   }
-  else{
-    $choice = 'y';
-  }
-  if ($choice == 'y') {
+  if ($backup == 'y') {
     drush_invoke('yadd-backup-env');
   }
   drush_log('Begin building process ...', 'status');

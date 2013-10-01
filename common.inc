@@ -86,8 +86,10 @@ function yadd_check_env_option() {
     return FALSE;
   }
   $vars = yadd_build_vars();
-  drush_set_option('root', readlink($vars['WWWDATA']));
-  drush_set_context('DRUSH_DRUPAL_ROOT', readlink($vars['WWWDATA']));
+  if (is_link($vars['WWWDATA'])) {
+    drush_set_option('root', readlink($vars['WWWDATA']));
+    drush_set_context('DRUSH_DRUPAL_ROOT', readlink($vars['WWWDATA']));
+  }
  # drush_print_r(readlink($vars['WWWDATA']));
   yadd_set_env($env);
 }
