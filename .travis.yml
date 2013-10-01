@@ -13,3 +13,5 @@ before_script:
   - pear channel-discover pear.drush.org
   - pear install drush/drush
   - pear upgrade-all
+  - cd tests
+script: phpunit yaddDrushTest.php
