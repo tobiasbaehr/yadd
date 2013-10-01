@@ -11,7 +11,7 @@ php:
   - 5.4
 install:
   - cd ..
-  - git clone --branch=6.x git://github.com/drush-ops/drush.git
+  - git clone --branch=5.x git://github.com/drush-ops/drush.git
   - export UNISH_DRUSH="${PWD}/drush/drush"
   - export PHPUNIT_ARGS=--bootstrap="${PWD}/drush/tests/drush_testcase.inc"
 before_script:
