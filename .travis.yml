@@ -9,9 +9,11 @@ php:
   - 5.3
   # aliased to a recent 5.4.x version
   - 5.4
+install:
+  - cd ..
+  - git clone --branch=6.x git://github.com/drush-ops/drush.git
+  - export UNISH_DRUSH="${PWD}/drush/drush"
+  - export PHPUNIT_ARGS=--bootstrap="${PWD}/drush/tests/drush_testcase.inc"
 before_script:
-  - pear channel-discover pear.drush.org
-  - pear install drush/drush
-  - pear upgrade-all
-  - cd tests
-script: phpunit yaddDrushTest.php --bootstrap=/usr/share/php/drush/tests/drush_testcase.inc
+  - cd yadd/tests
+script: phpunit $PHPUNIT_ARGS yaddDrushTest.php
