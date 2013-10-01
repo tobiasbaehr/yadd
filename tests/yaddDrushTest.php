@@ -87,9 +87,10 @@ class yaddCase extends Drush_CommandTestCase {
       $this->log(sprintf('Check is_dir %s', $dir), 'debug');
       $this->assertTrue(is_dir($dir), sprintf('%s is a dir', $dir));
     }
+    $this->YaddExportLocalDBCommand();
   }
 
-  public function testYaddExportLocalDBCommand() {
+  public function YaddExportLocalDBCommand() {
     $root = $this->webroot() . DIRECTORY_SEPARATOR . $this->projectname;
     $env = 'default';
     $site = "$root/sites/$env";
