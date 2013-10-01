@@ -78,13 +78,13 @@ class yaddCase extends Drush_CommandTestCase {
 
     $root = $this->webroot() . DIRECTORY_SEPARATOR . $this->projectname;
 
-    $this->log(sprintf('Check is_link %s', $root), 'verbose');
+    $this->log(sprintf('Check is_link %s', $root), 'debug');
     $this->assertTrue(is_link($root), sprintf('%s is a symlink', $root));
 
     $dirs = array('', 'build', 'backups', 'files');
     foreach ($dirs as $dirname) {
       $dir = $this->htdocs . DIRECTORY_SEPARATOR . $this->projectname . '_sources' . DIRECTORY_SEPARATOR . $dirname;
-      $this->log(sprintf('Check is_dir %s', $dir), 'verbose');
+      $this->log(sprintf('Check is_dir %s', $dir), 'debug');
       $this->assertTrue(is_dir($dir), sprintf('%s is a dir', $dir));
     }
   }

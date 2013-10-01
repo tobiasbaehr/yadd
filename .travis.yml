@@ -16,4 +16,4 @@ install:
   - export PHPUNIT_ARGS=--bootstrap="${PWD}/drush/tests/drush_testcase.inc"
 before_script:
   - cd yadd/tests
-script: phpunit $PHPUNIT_ARGS yaddDrushTest.php
+script: phpunit $PHPUNIT_ARGS --debug --verbose yaddDrushTest.php
