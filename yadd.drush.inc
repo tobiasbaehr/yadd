@@ -34,7 +34,9 @@ function yadd_drush_command() {
   $items['yadd-restore-backup'] = array(
     'description' => 'Restore a backup for a drupal environment',
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-    'options' => $default_options,
+    'options' => $default_options + array(
+      'backup-file' => 'A tar archive packed by drush.'
+    ),
   );
   $items['yadd-export-local-db'] = array(
     'description' => 'Export the database of the drupal environment',
@@ -203,8 +205,11 @@ function drush_yadd_restore_backup() {
   }
   $backups = $tmp;
   unset($tmp);
-  $choice = drush_choice($backups, 'Choose the backup to restore.');
-  if (!empty($choice)) {
+  $backup_file = drush_get_option('backup-file', NULL);
+  if (empty($backup_file)) {
+    $backup_file = drush_choice($backups, 'Choose the backup to restore.');
+  }
+  if (!empty($backup_file)) {
     #drush_set_option('file', $choice);
     #drush_set_option('destination', $vars['PROJECTBUILD'] . '/' . $vars['BUILD_DATE']);
     $destination = $vars['PROJECTBUILD'] . '/' . $vars['BUILD_DATE'];
@@ -212,7 +217,7 @@ function drush_yadd_restore_backup() {
       #'root' => $vars['WWWDATA'],
       'destination' => $destination,
     );
-    $success = drush_invoke_process('@self', 'archive-restore', array('file' => $choice), $commandline_options);
+    $success = drush_invoke_process('@self', 'archive-restore', array('file' => $backup_file), $commandline_options);
     if ($success) {
       require_once __DIR__ . '/build.inc';
       _yadd_delete_lib();
@@ -274,6 +279,8 @@ function drush_yadd_cleanup_env() {
   drush_log('Begin cleanup process ...', 'status');
   $root = drush_get_option('root', NULL);
   $del1 = drush_op('drush_delete_tmp_dir', $root);
+  require_once 'build.inc';
+  yadd_remove_symbolic_link_from_build();
   $vars = yadd_build_vars();
   $del2 = drush_op('drush_delete_tmp_dir', $vars['PROJECTSOURCES']);
   if ($del1 && $del2) {
