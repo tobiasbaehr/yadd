@@ -1,4 +1,8 @@
 <?php
+if (!defined('DS')) {
+  define('DS', DIRECTORY_SEPARATOR);
+}
+
 /*
  * @file
  *   PHPUnit Tests for YADD. This uses Drush's own test framework, based on PHPUnit.
@@ -15,7 +19,15 @@ class yaddCase extends Drush_CommandTestCase {
    */
   function __construct() {
     parent::__construct();
-    $this->testproject =  UNISH_SANDBOX . DIRECTORY_SEPARATOR . $this->projectname;
+    $this->testproject =  UNISH_SANDBOX . DS . $this->projectname;
+  }
+
+  public static function setUpBeforeClass() {
+    $sandbox = UNISH_SANDBOX;
+    if (file_exists($sandbox)) {
+      yadd_file_delete_recursive($sandbox);
+    }
+    parent::setUpBeforeClass();
   }
 
   /**
@@ -27,30 +39,28 @@ class yaddCase extends Drush_CommandTestCase {
     }
   }
 
-
+  public function sql_drop() {
+    $command = 'sql-drop';
+    $root = $this->webroot() . DS . $this->projectname;
+    #$root = $this->htdocs . DS . $this->projectname;
+    $options = array('quiet' => NULL, 'yes' => TRUE, 'root' => $root);
+    $this->drush($command, $args = array(), $options);
+  }
   function createDummyProject() {
-    @mkdir($this->testproject . DIRECTORY_SEPARATOR . 'config', 0777, TRUE);
-    $this->htdocs = UNISH_SANDBOX . DIRECTORY_SEPARATOR . 'web';
+    @mkdir($this->testproject . DS . 'config', 0777, TRUE);
+    $this->htdocs = UNISH_SANDBOX . DS . 'web';
     @mkdir($this->htdocs, 0777, TRUE);
     $data = "PROJECT={$this->projectname}\nHTDOCS={$this->htdocs}";
-    file_put_contents($this->testproject . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'common.ini', $data);
-    $files = glob(dirname(__FILE__ ) . DIRECTORY_SEPARATOR . 'testfiles' . DIRECTORY_SEPARATOR . '*');
+    file_put_contents($this->testproject . DS . 'config' . DS . 'common.ini', $data);
+    $files = glob(dirname(__FILE__ ) . DS . 'testfiles' . DS . '*');
     foreach ($files as $file) {
-      copy($file, $this->testproject . DIRECTORY_SEPARATOR . basename($file));
+      copy($file, $this->testproject . DS . basename($file));
     }
   }
 
-   public static function setUpBeforeClass() {
-     $sandbox = UNISH_SANDBOX;
-     if (file_exists($sandbox)) {
-       yadd_file_delete_recursive($sandbox);
-     }
-     parent::setUpBeforeClass();
-   }
-
   public function _copy_yadd() {
     $destination = getenv('HOME') . '/.drush/yadd';
-    $dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+    $dir = dirname(__FILE__) . DS . '..' . DS;
     $this->recurse_copy(realpath($dir), $destination);
   }
 
@@ -59,11 +69,11 @@ class yaddCase extends Drush_CommandTestCase {
     @mkdir($dst);
     while(false !== ( $file = readdir($dir)) ) {
       if (( $file != '.' ) && ( $file != '..' )) {
-        if (is_dir($src . DIRECTORY_SEPARATOR . $file) ) {
-          $this->recurse_copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+        if (is_dir($src . DS . $file) ) {
+          $this->recurse_copy($src . DS . $file, $dst . DS . $file);
         }
         else {
-          copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+          copy($src . DS . $file, $dst . DS . $file);
         }
       }
     }
@@ -76,28 +86,28 @@ class yaddCase extends Drush_CommandTestCase {
     $command = 'yadd-build-env';
     $this->drush($command, $args = array(), $options = array('env' => 'dev', 'backup' => 'n', 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
 
-    $root = $this->webroot() . DIRECTORY_SEPARATOR . $this->projectname;
+    $root = $this->webroot() . DS . $this->projectname;
 
     $this->log(sprintf('Check is_link %s', $root), 'debug');
     $this->assertTrue(is_link($root), sprintf('%s is a symlink', $root));
 
     $dirs = array('', 'build', 'backups', 'files');
     foreach ($dirs as $dirname) {
-      $dir = $this->htdocs . DIRECTORY_SEPARATOR . $this->projectname . '_sources' . DIRECTORY_SEPARATOR . $dirname;
+      $dir = $this->htdocs . DS . $this->projectname . '_sources' . DS . $dirname;
       $this->log(sprintf('Check is_dir %s', $dir), 'debug');
       $this->assertTrue(is_dir($dir), sprintf('%s is a dir', $dir));
     }
-    $this->YaddExportLocalDBCommand();
+    #$this->YaddExportLocalDBCommand();
   }
 
-  public function YaddExportLocalDBCommand() {
-    $root = $this->webroot() . DIRECTORY_SEPARATOR . $this->projectname;
+  public function testYaddExportLocalDBCommand() {
+    $root = $this->webroot() . DS . $this->projectname;
     $env = 'default';
     $site = "$root/sites/$env";
     $options = array(
         'root' => $root,
         'db-url' => $this->db_url($env),
-        'sites-subdir' => $env,
+       # 'sites-subdir' => $env,
         'yes' => NULL,
         'quiet' => NULL,
     );
@@ -106,12 +116,20 @@ class yaddCase extends Drush_CommandTestCase {
     chmod($site, 0777);
 
     $command = 'yadd-export-local-db';
-    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
-    $this->assertEquals(1, count(glob($this->testproject . DIRECTORY_SEPARATOR . '*.sql.gz')));
-
-    $this->drush($command, $args = array(), $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL), $site_specification = NULL, $cd = $this->testproject);
-    $this->assertEquals(2, count(glob($this->testproject . DIRECTORY_SEPARATOR . '*.sql.gz')));
-
+    $options = array('env' => 'dev', 'strict' => 0, 'quiet' => NULL);
+    $this->drush($command, $args = array(), $options, $site_specification = NULL, $cd = $this->testproject);
+    $backups = glob($this->testproject . DS . '*.sql.gz');
+    #$this->log(print_r($backups), 'verbose');
+    $this->assertEquals(1, count($backups));
+sleep(2);
+    $this->drush($command, $args = array(), $options + array('suffix' => 'mysuffix'), $site_specification = NULL, $cd = $this->testproject);
+    $backups = glob($this->testproject . DS . '*.sql.gz');
+   # $this->log(print_r($backups), 'verbose');
+    $this->assertEquals(2, count($backups));
+    $latest = end($backups);
+    #$this->log($latest, 'verbose');
+    $this->assertTrue(strpos($latest, 'mysuffix') !== FALSE);
+    $this->sql_drop();
   }
 }
 
@@ -139,7 +157,7 @@ function yadd_file_delete_recursive($dir) {
     if ($item == '.' || $item == '..') {
       continue;
     }
-    if (!yadd_file_delete_recursive($dir . DIRECTORY_SEPARATOR . $item)) {
+    if (!yadd_file_delete_recursive($dir . DS . $item)) {
       return FALSE;
     }
   }
