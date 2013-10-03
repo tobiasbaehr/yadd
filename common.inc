@@ -43,16 +43,16 @@ function yadd_get_settings_file($BUILD) {
   return "$BUILD/sites/default/default.settings.php";
 }
 
-function yadd_build_vars() {
+function yadd_build_vars($reset = FALSE) {
   static $vars = array();
-  if (empty($vars)) {
+  if (empty($vars) || $reset) {
     $vars['HTDOCS'] = '/var/www';
     $vars['MAJORVERSION'] = '7';
     $vars['DRUPAL_FILES_DIR'] = 'sites/default/files';
     $vars['BUILD_DATE'] = date('Ymd_His');
     $vars['MAX_BACKUPS'] = 3;
-    $vars['BACKUP_PRE_BUILD'] = FALSE;
-    $vars['BACKUP_PRE_IMPORT'] = FALSE;
+    $vars['BACKUP_PRE_BUILD'] = 'n';
+    $vars['BACKUP_PRE_IMPORT'] = 'n';
     $vars = array_merge($vars, yadd_get_common_project_data());
     $vars = array_merge($vars, yadd_get_config_file_data());
 
@@ -141,9 +141,9 @@ function yadd_select_env_for_task($title = '%env-environment', $question = '', $
   return $choice;
 }
 
-function yadd_set_env($env = NULL) {
+function yadd_set_env($env = NULL, $reset = FALSE) {
   static $local_env = NULL;
-  if (is_null($local_env)) {
+  if (is_null($local_env) || $reset) {
     $local_env = $env;
   }
   return $local_env;

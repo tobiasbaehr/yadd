@@ -23,12 +23,10 @@ function yadd_create_sql_dump($destination_dir = '') {
 }
 
 function yadd_import_sql_dump($source_dir = '') {
-  if ($vars['BACKUP_PRE_IMPORT']) {
+  $vars = yadd_build_vars();
+  if ($vars['BACKUP_PRE_IMPORT'] == 'y') {
     drush_set_option('suffix', 'auto');
-    $choice = drush_confirm(dt('Do you want to create a database backup?'));
-    if ($choice == 'y') {
-      drush_invoke('yadd-export-local-db');
-    }
+    drush_invoke('yadd-export-local-db');
   }
   $pattern = '*.sql.gz';
   if ($source_dir) {
@@ -40,7 +38,10 @@ function yadd_import_sql_dump($source_dir = '') {
     foreach ($dumps as $dump) {
       $files[$dump] = $dump;
     }
-    $file = drush_choice($files, 'Please select the dump');
+    $file = drush_get_option('db-file', NULL);
+    if (empty($file)) {
+      $file = drush_choice($files, 'Please select the dump');
+    }
     if (!empty($file)) {
       $tmpfile = drush_tempnam(basename($file));
       drush_copy_dir($file, $tmpfile, FILE_EXISTS_OVERWRITE);

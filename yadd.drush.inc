@@ -46,7 +46,9 @@ function yadd_drush_command() {
   $items['yadd-import-local-db'] = array(
     'description' => 'Import the database to the drupal environment',
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-    'options' => $default_options,
+    'options' => $default_options + array(
+      'db-file' => 'A sql dump to restore.',
+    ),
   );
   $items['yadd-package-env'] = array(
     'description' => 'Build a tar archive of a the drupal environment',
@@ -63,7 +65,6 @@ function yadd_drush_command() {
   $items['yadd-cleanup-all'] = array(
     'description' => 'Deletes all known files of all environments',
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-    'options' => $default_options,
   );
   return $items;
 }
@@ -110,7 +111,6 @@ function drush_yadd_build_env_validate() {
   drush_mkdir($vars['PROJECTSOURCES'], TRUE);
   drush_mkdir($vars['PROJECTBACKUPS'], TRUE);
   drush_mkdir($vars['PROJECTBUILD'], TRUE);
-  # drush_mkdir($vars['PROJECTLIBS'], TRUE);
   drush_mkdir($vars['PROJECTFILES'], TRUE);
   return -1;
 }
@@ -277,15 +277,16 @@ function drush_yadd_cleanup_env_validate() {
  */
 function drush_yadd_cleanup_env() {
   drush_log('Begin cleanup process ...', 'status');
-  $root = drush_get_option('root', NULL);
-  $del1 = drush_op('drush_delete_tmp_dir', $root);
   require_once 'build.inc';
-  yadd_remove_symbolic_link_from_build();
-  $vars = yadd_build_vars();
+  $vars = yadd_build_vars(TRUE);
+  $del1 = yadd_remove_symbolic_link_from_build();
   $del2 = drush_op('drush_delete_tmp_dir', $vars['PROJECTSOURCES']);
   if ($del1 && $del2) {
     drush_log('Finished cleanup process...completed', 'success');
+    return TRUE;
   }
+  drush_set_error('YADD_BUILD_CLEANUP_ENV', dt('Could not cleanup env %env', array('%env' => yadd_get_env())));
+  return FALSE;
 }
 
 /**
@@ -294,8 +295,7 @@ function drush_yadd_cleanup_env() {
 function drush_yadd_cleanup_all() {
   $envs = yadd_get_env_list();
   foreach ($envs as $key => $label) {
-    yadd_set_env('env', $key);
+    yadd_set_env($key, TRUE);
     drush_invoke('yadd-cleanup-env');
   }
 }
-

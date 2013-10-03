@@ -2,11 +2,7 @@
 
 function yadd_build_env() {
   $vars = yadd_build_vars();
-  $backup = drush_get_option('backup', $vars['BACKUP_PRE_BUILD']);
-  if (empty($backup)) {
-    $backup = drush_confirm('Do you want to create a backup? (Current Build/Database)');
-  }
-  if ($backup == 'y') {
+  if ($vars['BACKUP_PRE_BUILD'] == 'y') {
     drush_invoke('yadd-backup-env');
   }
   drush_log('Begin building process ...', 'status');
@@ -62,7 +58,9 @@ function yadd_build_env() {
   if ($linked) {
     _yadd_delete_old_build();
     drush_log('Finished building process...completed', 'success');
+    return TRUE;
   }
+  return FALSE;
 }
 
 /**
@@ -88,17 +86,19 @@ function yadd_add_symbolic_link_to_build($BUILD_DESTINATION) {
   drush_op('symlink', $BUILD_DESTINATION, $vars['WWWDATA']);
   if (drush_op('is_link', $vars['WWWDATA'])) {
     drush_log('Added symlink to the project.', 'info');
-    return -1;
+    return TRUE;
   }
-  return FALSE;
+  return drush_set_error('YADD_BUILD_ADD_SYMLINK', dt('Could not link path %path to %dst', array('%path' => $vars['WWWDATA'], '%dst' => $BUILD_DESTINATION)));
 }
 
 function yadd_remove_symbolic_link_from_build() {
   $vars = yadd_build_vars();
+  #drush_log(print_r($vars, 1), 'status');
   if (drush_op('is_link', $vars['WWWDATA'])) {
     drush_op('unlink', $vars['WWWDATA']);
     if (!drush_op('is_link', $vars['WWWDATA'])) {
-      return drush_log('Removed old symlink from the project.', 'info');
+      drush_log('Removed old symlink from the project.', 'info');
+      return TRUE;
     }
     else{
       return drush_set_error('YADD_BUILD_REMOVE_SYMLINK', dt('Could not unlink path %path', array('%path' => $vars['WWWDATA'])));
@@ -107,7 +107,7 @@ function yadd_remove_symbolic_link_from_build() {
   else if (drush_op('is_dir', $vars['WWWDATA'])) {
     return drush_set_error('YADD_BUILD_IS_DIR', dt('%dir is a directory. Rename it or remove it.', array('%dir' => $vars['WWWDATA'])));
   }
-  return -1;
+  return TRUE;
 }
 
 function _yadd_move_lib_dir($BUILD) {
