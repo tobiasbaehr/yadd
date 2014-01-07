@@ -19,40 +19,8 @@ fi
 
 incolor_yellow "Überprüfe Vorraussetzungen..."
 if [ -z "$DRUSH_VERSION_STRING" ];then
-  incolor_red "Drush ist nicht installiert."
-  echo "Soll Drush installiert werden? (y/n)"
-  read INSTALL_DRUSH
-  if [ $INSTALL_DRUSH = "y" ];then
-    source $SCRIPTDIR/install.sh "drush"
-  else
-    incolor_yellow "Drush wird nicht installiert."
-    incolor_red "Abbruch. Prozess wird beendet, da Drush nicht installiert ist."
-    exit 2
-  fi
-fi
-
-# Warnung, wenn Drush 5.x installiert ist, jedoch git 1.7.x nicht, wegen git clone --mirror in drush make
-if [[ ! -z "$DRUSH_5x" && -z $GIT_17 ]];then
-  incolor_red "Abbruch. Prozess wird beendet, da $DRUSH_VERSION_STRING inkompatibel mit $GIT_VERSION_STRING ist."
+  incolor_red "Abbruch. Prozess wird beendet, da Drush nicht installiert ist."
   exit 2
-fi
-# Warnung, wenn git 1.7.x installiert ist und Drush 5.x nicht, wegen git clone --mirror in drush make
-if [[ -z "$DRUSH_5x" && ! -z $GIT_17 ]];then
-  incolor_red "Abbruch. Prozess wird beendet, da $GIT_VERSION_STRING inkompatibel mit $DRUSH_VERSION_STRING ist."
-  exit 2
-fi
-#Drush make nicht installieren bei drush 5.x, da bereits enthalten
-if [[ -z "$DRUSH_5x" && ! -d "$DRUSH_CONTRIB/drush_make" ]];then
-  incolor_red "Drush Make ist nicht unter $DRUSH_CONTRIB/drush_make installiert."
-  echo "Soll Drush Make installiert werden? (y/n)" >&2
-  read INSTALL_DRUSH_MAKE
-  if [ $INSTALL_DRUSH_MAKE = "y" ];then
-    source $SCRIPTDIR/install.sh "drushmake"
-  else
-    incolor_yellow "Drush Make wird nicht installiert."
-    incolor_red "Abbruch. Prozess wird beendet, da Drush Make nicht installiert ist."
-    exit 2
-  fi
 fi
 
 if ! [ -d $DRUSH_CONTRIB ];then
@@ -70,5 +38,3 @@ if ! [ -d $DRUSH_TARGET ];then
 fi
 
 incolor_green "Überprüfe Vorraussetzungen...erledigt."
-
-
